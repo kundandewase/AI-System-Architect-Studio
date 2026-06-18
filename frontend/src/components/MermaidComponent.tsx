@@ -6,7 +6,7 @@ import mermaid from 'mermaid';
 // Initialize mermaid
 mermaid.initialize({
   startOnLoad: false,
-  theme: 'dark',
+  theme: 'default',
   securityLevel: 'loose',
   flowchart: {
     useMaxWidth: true,
@@ -33,6 +33,10 @@ function cleanMermaidSyntax(chart: string): string {
   if (headerMatch) {
     clean = clean.replace(/^(graph|flowchart)\s+(\w+)\s+/i, `${headerMatch[1]} ${headerMatch[2]}\n`);
   }
+
+  // Auto-inject semicolon between two separate connections on the same line (e.g. A --> B C --> D)
+  const connRegex = /([\]\)}"]|\b\w+)\s+(\b\w+)\s*(-+>|={2,}>|-{2,}|={2,})/g;
+  clean = clean.replace(connRegex, '$1; $2 $3');
 
   clean = clean.replace(
     /\b([A-Za-z_][\w-]*)\s*(-->|---|==>|-\.->|--|==|-\.\-?)\s*([A-Za-z_][\w-]*(?:\[[^\n\r\]]*\]|\([^\n\r\)]*\)|\{[^\n\r\}]*\}))\s*:\s*"([^"]+)"/g,
@@ -111,10 +115,10 @@ export default function MermaidComponent({ chart }: MermaidComponentProps) {
 
   if (renderState.error) {
     return (
-      <div className="text-sm text-rose-400 bg-rose-950/20 border border-rose-900/30 p-4 rounded-xl">
+      <div className="text-sm text-rose-600 bg-rose-50 border border-rose-100 p-4 rounded-xl">
         <p className="font-semibold mb-1">Diagram Render Failed</p>
-        <p className="text-zinc-400 text-xs mb-2">The AI generated a diagram that couldn&apos;t be parsed by Mermaid.js.</p>
-        <pre className="text-xs bg-black/40 p-3 rounded overflow-x-auto text-zinc-300 max-h-48 font-mono">
+        <p className="text-slate-500 text-xs mb-2">The AI generated a diagram that couldn&apos;t be parsed by Mermaid.js.</p>
+        <pre className="text-xs bg-slate-100 p-3 rounded overflow-x-auto text-slate-700 border border-slate-200 max-h-48 font-mono">
           {chart}
         </pre>
       </div>
@@ -123,16 +127,16 @@ export default function MermaidComponent({ chart }: MermaidComponentProps) {
 
   if (renderState.chart !== cleanMermaidSyntax(chart)) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 bg-zinc-950/40 rounded-xl border border-zinc-800/50">
+      <div className="flex flex-col items-center justify-center h-64 bg-white rounded-xl border border-slate-200/80 shadow-sm">
         <div className="w-8 h-8 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="text-sm text-zinc-400">Rendering flow diagram...</span>
+        <span className="text-sm text-slate-400">Rendering flow diagram...</span>
       </div>
     );
   }
 
   return (
     <div 
-      className="mermaid-svg-container overflow-x-auto p-6 bg-zinc-950/40 rounded-xl border border-zinc-800/50 flex justify-center items-center" 
+      className="mermaid-svg-container overflow-x-auto p-6 bg-white rounded-xl border border-slate-200 shadow-sm flex justify-center items-center" 
       ref={ref} 
       dangerouslySetInnerHTML={{ __html: renderState.svg }} 
     />
