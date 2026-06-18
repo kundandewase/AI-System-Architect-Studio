@@ -219,6 +219,11 @@ const responseSchema = {
   required: ["systemArchitecture", "databaseSchema", "apiEndpoints", "techStack", "deployment", "costEstimation"]
 };
 
+// Root Endpoint
+app.get('/', (req, res) => {
+  res.send('AI System Architect API Server is running! Use the frontend client to interact.');
+});
+
 // Health Check API
 app.get('/api/health', (req, res) => {
   res.json({
